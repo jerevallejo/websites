@@ -1,2 +1,1 @@
-# spring-mongodb
-How to intigrate spring boot with mongodb
+# Web Sites springboot and mongodb app
