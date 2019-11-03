@@ -3,22 +3,30 @@ package com.backend.spring.website.api.model;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.ToString;
+
 
 @Document(collection = "WebSites")
 public class WebSite implements Serializable{
 
 	@Id
-	@NotNull
-	private Long ownerId;
+	private long id;
 	
+	private Long ownerId;
 	private String domain;
 	private int leadCount;
 	private String plan;
 	private List<String> labels;
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	
 	public Long getOwnerId() {
 		return ownerId;

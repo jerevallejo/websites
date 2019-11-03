@@ -1,8 +1,6 @@
 package com.backend.spring.website.api.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -11,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,13 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.spring.website.api.model.WebSite;
 import com.backend.spring.website.api.repository.WebSiteRepository;
+import com.backend.spring.website.api.service.SequenceServiceImpl;
 
 @RestController
 @RequestMapping("/api")
 public class WebSiteController {
 
+	private static final String WEB_SITE_KEY = "webSite";
+	
 	@Autowired
 	private WebSiteRepository webSiteRepository;
+	
+	@Autowired
+	private SequenceServiceImpl sequenceSerives;
 
 	  /**
      * metodo para guardar un Web Site.
@@ -35,13 +38,18 @@ public class WebSiteController {
      */
     @ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = "/websites", method = RequestMethod.POST,
-    headers = {"token=123456789"})
-	public WebSite save(@RequestBody WebSite webSite) {
-	 
-		WebSite webSiteNew = null;
-		webSiteNew = webSiteRepository.save(webSite);
+    headers = {"token=123456789"}, consumes = "application/json")
+	public WebSite save(@RequestBody WebSite webSite) throws SecurityException {
+
+		WebSite webSiteNew = new WebSite();
+		webSiteNew.setId(sequenceSerives.getNextSequenceId(WEB_SITE_KEY));
+		webSiteNew.setDomain(webSite.getDomain());
+		webSiteNew.setLabels(webSite.getLabels());
+		webSiteNew.setOwnerId(webSite.getOwnerId());
+		webSiteNew.setLeadCount(webSite.getLeadCount());
+		webSiteNew.setPlan(webSite.getPlan());
 		
-		return webSiteNew;
+		return webSiteRepository.save(webSiteNew);
 	}
 
 	  /**
@@ -62,20 +70,12 @@ public class WebSiteController {
      */
 	@RequestMapping(value = "/websites/{id}", method = RequestMethod.GET,
     headers = {"token=123456789"})
-	public ResponseEntity<?> show(@PathVariable long id,
-			@RequestHeader(name = "token", defaultValue = "123456789"  ) int token)
-	                 throws Exception{
+	public ResponseEntity<?> show(@PathVariable int id)
+	{
 		Optional<WebSite> webSite = null;
-		Map<String, Object> response = new HashMap<>();
-		try {	
-			webSite = webSiteRepository.findById(id);
-			if(webSite.get().getOwnerId()== id) {
-				return new ResponseEntity<Optional<WebSite>>(webSite, HttpStatus.OK);
-			}
-		}catch(Exception e) {
-			response.put("mensaje", "El web site no existe en la base de datos");
-			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-		}
+		
+		webSite = webSiteRepository.findById(id);
+
 		return new ResponseEntity<Optional<WebSite>>(webSite, HttpStatus.OK);
 	}
 
@@ -87,7 +87,7 @@ public class WebSiteController {
      */
 	@RequestMapping(value = "/websites/{id}", method = RequestMethod.DELETE,
 	headers = {"token=123456789"})
-	public String deleteBook(@PathVariable long id) {
+	public String deleteBook(@PathVariable int id) {
 		webSiteRepository.deleteById(id);
 		return "web site deleted with id : " + id;
 	}
