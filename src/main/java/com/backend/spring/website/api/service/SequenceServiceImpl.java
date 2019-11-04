@@ -32,12 +32,16 @@ public class SequenceServiceImpl implements SequenceService{
 		options.returnNew(true);
 		
 		Sequence seqId = mongoOperation.findAndModify(query, update, options, Sequence.class);
-		
-		//if no id, throw Sequence Exception
-		if(seqId == null) {
-			throw new SequenceException("No se puede obtener la sequencia de id para la clave: " + key);
+		//if no id, throw Sequence Exception	
+		if (seqId == null) {
+			seqId = new Sequence();
+			seqId.setId(key);
+			seqId.setSeq((long) 1);
+			mongoOperation.insert(seqId);
+			return 1;
+		}else {
+			return seqId.getSeq();
 		}
-		return seqId.getSeq();
 	}
 
 }

@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.ToString;
 
-
+@ToString
 @Document(collection = "WebSites")
 public class WebSite implements Serializable{
 
@@ -20,6 +20,10 @@ public class WebSite implements Serializable{
 	private int leadCount;
 	private String plan;
 	private List<String> labels;
+	
+	public WebSite() {
+		
+	}
 	
 	public long getId() {
 		return id;

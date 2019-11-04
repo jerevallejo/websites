@@ -19,6 +19,9 @@ public class Sequence implements Serializable{
 		this.seq= seq;
 	}
 	
+	public Sequence() {
+	}
+	
 	public String getId() {
 		return id;
 	}
