@@ -16,19 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.spring.website.api.model.WebSite;
 import com.backend.spring.website.api.repository.WebSiteRepository;
-import com.backend.spring.website.api.service.SequenceServiceImpl;
 
 @RestController
 @RequestMapping("/api")
 public class WebSiteController {
-
-	private static final String WEB_SITE_KEY = "webSite";
 	
 	@Autowired
 	private WebSiteRepository webSiteRepository;
-	
-	@Autowired
-	private SequenceServiceImpl sequenceSerives;
 
 	  /**
      * metodo para guardar un Web Site.
@@ -40,9 +34,11 @@ public class WebSiteController {
 	@RequestMapping(value = "/websites", method = RequestMethod.POST,
     headers = {"token=123456789"}, consumes = "application/json")
 	public WebSite save(@RequestBody WebSite webSite) throws SecurityException {
-
+    	Long id = null;
+    	List<WebSite> webSites = webSiteRepository.findAll();
+    	id = nextId(webSites);
 		WebSite webSiteNew = new WebSite();
-		webSiteNew.setId(sequenceSerives.getNextSequenceId(WEB_SITE_KEY));
+		webSiteNew.setId(id);
 		webSiteNew.setDomain(webSite.getDomain());
 		webSiteNew.setLabels(webSite.getLabels());
 		webSiteNew.setOwnerId(webSite.getOwnerId());
@@ -52,7 +48,7 @@ public class WebSiteController {
 		return webSiteRepository.save(webSiteNew);
 	}
 
-	  /**
+	/**
      * metodo para listar los Web Sites.
      * @param
      * @return  List WebSite
@@ -92,4 +88,14 @@ public class WebSiteController {
 		return "web site deleted with id : " + id;
 	}
 
+	private long nextId(List<WebSite> webSites) {
+		  long cantId = 0;
+		  
+		  for(WebSite web : webSites)
+			  if(web.getId()> cantId) {
+				  cantId = web.getId();
+			  }
+		  cantId ++;
+		return cantId;
+	}
 }
